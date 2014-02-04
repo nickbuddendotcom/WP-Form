@@ -146,7 +146,7 @@ class WP_Form {
 		$this->add_field($name, $args, 'textarea');
 	}
 
-	public function submit($name, $args = array()) {
+	public function submit($name = '', $args = array()) {
 		$this->add_field($name, $args, 'submit');
 	}
 
