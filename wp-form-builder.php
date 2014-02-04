@@ -91,7 +91,7 @@ class WP_Form {
 	 * @param string $type
 	 */
 	public function add_field($name, $args = array(), $type = '') {
-		$args['type'] 	= ($type) ? $type : 'input';
+		$type 			  	= ($type) ? $type : 'input';
 		$value 					= $this->get_value($name);
 
 		if($value && $type !== 'password') {
