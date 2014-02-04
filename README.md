@@ -6,7 +6,7 @@ Build WordPress forms quickly and programatically.
 
 Copy or clone the two source files into your project, then require them where needed. Require the files in your `functions.php` file if you want WP_Form class available project-wide:
 
-```
+```php
 <?php
 // functions.php
 require_once('path/to/wp-form-builder.php');
@@ -15,7 +15,7 @@ require_once('path/to/wp-form-validator.php');
 
 Next, create a new instance of WP_Form and add fields to it:
 
-```
+```php
 $form = new WP_Form($name = 'form-name', $action = 'form-action', $options = array());
 
 // Arbitrarily add fields
@@ -34,7 +34,7 @@ $form->submit('submit-the-form');
 
 The example above outputs:
 
-```
+```html
 <form method="POST" enctype="application/x-www-form-urlencoded" action="form-action">
 
   <!-- Hidden Fields Omitted --> 
