@@ -90,11 +90,11 @@ class WP_Form {
 	 * @param array  $args 
 	 * @param string $type
 	 */
-	public function add_field($name, $args = array(), $type = '') {
-		$type 			  	= ($type) ? $type : 'input';
+	public function add_field($name, $args = array(), $tag = '') {
+		$args['tag'] 	= ($tag) ? $tag : 'input';
 		$value 					= $this->get_value($name);
 
-		if($value && $type !== 'password') {
+		if($value && $args['type'] !== 'password') {
 			$args['value'] = esc_attr($value);
 		}
 
@@ -102,7 +102,7 @@ class WP_Form {
 	}
 
 	public function input($name, $args = array()) {
-		$this->add_field($name, $args, 'input');
+		$this->add_field($name, $args);
 	}
 
 	public function button($name, $args = array()) {
@@ -110,15 +110,18 @@ class WP_Form {
 	}
 
 	public function hidden($name, $args = array()) {
-		$this->add_field($name, $args, 'hidden');
+		$args['type'] = 'hidden';
+		$this->add_field($name, $args);
 	}
 
 	public function password($name, $args = array()) {
-		$this->add_field($name, $args, 'password');
+		$args['type'] = 'password';
+		$this->add_field($name, $args);
 	}
 
 	public function email($name, $args = array()) {
-		$this->add_field($name, $args, 'email');
+		$args['type'] = 'email';
+		$this->add_field($name, $args);
 	}
 
 	// TODO: HTML5'S DEFAULT IMPLEMENTATION OF NUMBERS DOESN'T
@@ -126,12 +129,14 @@ class WP_Form {
 	// A PATTERN ATTRIBUTE TO HANDLE THIS, SO, THAT PATTERN ATTRIBUTE
 	// IS ON THE TODO LIST
 	public function number($name, $args = array()) {
-		$this->add_field($name, $args, 'number');
+		$args['type'] = 'number';
+		$this->add_field($name, $args);
 	}
 
 	// Good for mobile (at least iPhone). Displays a special keyboard.
 	public function tel($name, $args = array()) {
-		$this->add_field($name, $args, 'tel');
+		$args['type'] = 'tel';
+		$this->add_field($name, $args);
 	}
 
 	public function select($name, $args = array()) {
@@ -139,7 +144,8 @@ class WP_Form {
 	}
 
 	public function radio($name, $args = array()) {
-		$this->add_field($name, $args, 'radio');
+		$args['type'] = 'radio';
+		$this->add_field($name, $args);
 	}
 
 	public function textarea($name, $args = array()) {
@@ -147,7 +153,8 @@ class WP_Form {
 	}
 
 	public function submit($name = '', $args = array()) {
-		$this->add_field($name, $args, 'submit');
+		$args['type'] = 'submit';
+		$this->add_field($name, $args);
 	}
 
 	public function build() {
@@ -262,21 +269,27 @@ class WP_Form {
 		}
 
 		$output .= ">";
+		
+		// Print a label UNLESS this is a button
+		if($args['label'] && $args['tag'] !== 'button') {
+			$output .= '<label for="' . esc_attr($name) . '">' . esc_attr($args['label']) . '</label>';
+		}
 
-		if($args['type'] === 'select') {
+		if($args['tag'] === 'select') {
 			$output .= $this->select_html($name, $args);
-		} elseif($args['type'] === 'checkbox') {
+		} elseif($args['tag'] === 'checkbox') {
 			$output .= $this->checkbox_html($name, $args);
-		} elseif($args['type'] === 'radio') {
+		} elseif($args['tag'] === 'radio') {
 			$output .= $this->radio_html($name, $args);
-		} elseif($args['type'] === 'button') {
+		} elseif($args['tag'] === 'button') {
 			$output .= $this->button_html($name, $args);
-		} elseif($args['type'] === 'textarea') {
+		} elseif($args['tag'] === 'textarea') {
 			$output .= $this->textarea_html($name, $args);
-		} elseif($args['type'] === 'submit') {
+		} elseif($args['tag'] === 'submit') {
+			if (!$args['name']) $args['name'] = $name;
 			$output .= $this->submit_html($args);
-		} elseif(in_array($args['type'], $this->custom_inputs)) {
-			$output .= $this->custom_html($name, $args['type'], $args);
+		} elseif(in_array($args['tag'], $this->custom_inputs)) {
+			$output .= $this->custom_html($name, $args['tag'], $args);
 		} else {
 			$output .= $this->input_html($name, $args);
 		}
@@ -286,11 +299,6 @@ class WP_Form {
 		} else {
 			// Empty hidden errors, so you can populate them via AJAX if needed
 			$output .= '<small style="display:none" class="wp-form-error"></small>';
-		}
-
-		// Print a label UNLESS this is a button
-		if($args['label'] && $args['type'] !== 'button') {
-			$output .= '<label for="' . esc_attr($name) . '">' . esc_attr($args['label']) . '</label>';
 		}
 
 		// Close the field wrapper
@@ -416,11 +424,14 @@ class WP_Form {
 	private function button_html($name, $args = array()) {
 		$output .= '<button name="' . $name . '" type="' . $args['type'] . '"';
 
+		$inner_text = $args['text'] ? $args['text'] : $args['label'];
+
 		$possible_input_attrs = array(
 			'name',
 			'id',
 			'placeholder',
 			'class',
+			'value',
 			'min',
 			'max',
 			'style',
@@ -438,13 +449,7 @@ class WP_Form {
 
 		$output .= ">";
 
-		if ($args['value']) {
-			$output .= $args['value'];
-		} elseif ($args['label']) {
-			$output .= $args['label'];
-		} else {
-			$output .= $args['type'];
-		}
+		$output .= $inner_text;
 
 		$output .= '</button>';
 
