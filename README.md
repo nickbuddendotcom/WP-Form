@@ -40,13 +40,13 @@ The example above outputs:
   <!-- Hidden Fields Omitted --> 
 
   <div>
-    <input name="first-name" type="input" />
+    <input name="first-name" type="text" />
     <small style="display:none" class="wp-form-error"></small>
     <label for="first-name">First Name</label>
   </div>
 
   <div>
-    <input name="last-name" type="input" />
+    <input name="last-name" type="text" />
     <small style="display:none" class="wp-form-error"></small>
     <label for="last-name">Last Name</label>
   </div>
