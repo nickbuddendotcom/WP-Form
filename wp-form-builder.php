@@ -504,16 +504,20 @@ class WP_Form {
 
 }
 
+/**
+ * The fieldset class. Allows arbitrary form inputs to be encapsulated
+ * within <fieldset> tags. Good for building forms with complex layout
+ * requirements. Functions just like a WP_Form, but will output different
+ * markup when build() is called.
+ * @uses WP_Form
+ */
 class WP_Field_Set extends WP_Form {
 
 	protected $atts = array(); // Fieldset atts
 
 	// protected $inputs = array(); // Inputs specific to this fieldset
 
-	// Fielsets must be named
 	public function __construct( $args = array() ) {
-
-		$this->name = $name;
 
 	  if ($args) $this->set_attr($args);
 
