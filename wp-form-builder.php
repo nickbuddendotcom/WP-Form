@@ -6,7 +6,7 @@
 
 class WP_Form {
 
-	// Stores all form inputs
+	// Stores all form inputs (or fieldsets)
 	protected $inputs = array();
 
 	// Let people define their own input types
@@ -101,6 +101,12 @@ class WP_Form {
 		$this->inputs[$name] = $args;
 	}
 
+	public function fieldset($args) {
+		$fieldset = new WP_Field_Set($args);
+		array_push($this->inputs, $fieldset);
+		return $fieldset;
+	}
+
 	public function input($name, $args = array()) {
 		$this->add_field($name, $args);
 	}
@@ -184,7 +190,15 @@ class WP_Form {
 		$output .= $this->messages();
 
 		foreach($this->inputs as $name => $args) {
-			$output .= $this->input_markup($name, $args);
+			if ($args instanceof WP_Field_Set) {
+				// This should be refactored for clarity, but basically $args is 
+				// just referrign to the item in the array, and that item might
+				// be a fieldset Object. If it is, then just call build on it and
+				// keep going.
+				$output .= $args->build();
+			} else {
+				$output .= $this->input_markup($name, $args);
+			}
 		}
 
 		// TODO: this should use a less generic name to avoid conflicts.
@@ -199,7 +213,7 @@ class WP_Form {
 		return $output;
 	}
 
-	private function messages() {
+	protected function messages() {
 		global $wp_form;
 
 		if(!$wp_form) {
@@ -240,7 +254,7 @@ class WP_Form {
 		return $output;
 	}
 
-	private function input_markup($name, $args) {
+	protected function input_markup($name, $args) {
 
 		global $wp_form_errors;
 
@@ -487,6 +501,60 @@ class WP_Form {
 
 	// Overide this in child classes
 	protected function custom_html($type, $args) {}
+
+}
+
+class WP_Field_Set extends WP_Form {
+
+	protected $atts = array(); // Fieldset atts
+
+	// protected $inputs = array(); // Inputs specific to this fieldset
+
+	// Fielsets must be named
+	public function __construct( $args = array() ) {
+
+		$this->name = $name;
+
+	  if ($args) $this->set_attr($args);
+
+	}
+
+	public function set_attr($args) {
+		foreach ($args as $attr => $val) {
+			if ($attr == 'class' && is_array($val)) {
+				$val = implode(' ', $val);
+				$this->atts[$attr] = $val;
+			} else {
+				$this->atts[$attr] = $val;
+			}
+		}
+	}
+
+	public function build() {
+
+		$output = '<fieldset';
+
+		if ($this->atts)
+		foreach( $this->atts as $key => $val) {
+    	$output .= ' ' . $key . '="' . $val .'"';
+		}
+
+		$output .= '>';
+
+		foreach($this->inputs as $name => $args) {
+			// Support nested fieldsets. Not sure why anyone would want to do this 
+			// but hey, why not..
+			if ($args instanceof WP_Field_Set) {
+				$output .= $args->build();
+			} else {
+				$output .= parent::input_markup($name, $args);
+			}
+		}
+
+		$output .= '</fieldset>';
+
+		return $output;
+	}
 
 }
 
