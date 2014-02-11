@@ -198,23 +198,23 @@ Returns an array of all $_POST'd or $_GET'd values from your form. It only retur
 
 Handles common actions you might want to take after having validating a form. Right now there are three responses, but you're welcome to add more:
 
-* Redirect
+###### Redirect
 
 Redirects the user to the given url
 
 ``` $validator->respond('redirect', get_bloginfo('url'));```
 
-* Refresh
+###### Refresh
 
 Refreshes the current page. This is useful if you've done something in your validation function like log a user in.
 
 ``` $validator->respond('refresh');```
 
-* Message
+###### Message
 
 This will hide all of the form fields, and display the message. This is useful for showing a success message.
 
-``` $validator->respond('message', array('message text', 'message_class'));```
+```$validator->respond('message', array('message text', 'message_class'));```
 
 ***
 
