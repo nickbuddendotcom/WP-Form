@@ -116,7 +116,7 @@ function validate_foo() {
 
 ## Basic Functions
 
-#### register_form($name, $form)
+###### register_form($name, $form)
 
 You should call this function from inside a ```register_forms``` hook. Give the name of the form followed by an array of the form's attributes.
 
@@ -162,7 +162,7 @@ register_form('YOUR_FORM_NAME', array(
 ));
 ```
 
-#### get_form($name)
+###### get_form($name)
 
 This function returns the HTML for the form you created with ```register_form()```.
 
@@ -176,7 +176,7 @@ This function returns the HTML for the form you created with ```register_form()`
 
 To validate your form, you'll need instantiate ```WP_Form_Validator($name)``` with the name of your form. This should be done after hooking into init, wp_ajax_[FORM_NAME], or wp_ajax_nopriv_[FORM_NAME].
 
-#### is_valid()
+###### is_valid()
 
 Check's if the form is valid. If the form is invalid, it will automatically reprint the form with errors. This method does a few things:
 
@@ -186,31 +186,31 @@ Check's if the form is valid. If the form is invalid, it will automatically repr
 
 If you've already set custom error messages with ```set_error()```, this method will also check for those.
 
-#### get_value($field)
+###### get_value($field)
 
 Returns the $_POST'd or $_GET'd value of the field.
 
-#### get_values()
+###### get_values()
 
 Returns an array of all $_POST'd or $_GET'd values from your form. It only returns values that were set as fields.
 
-#### respond($type, $args)
+###### respond($type, $args)
 
 Handles common actions you might want to take after having validating a form. Right now there are three responses, but you're welcome to add more:
 
-###### Redirect
+Redirect:
 
 Redirects the user to the given url
 
-``` $validator->respond('redirect', get_bloginfo('url'));```
+```$validator->respond('redirect', get_bloginfo('url'));```
 
-###### Refresh
+Refresh:
 
 Refreshes the current page. This is useful if you've done something in your validation function like log a user in.
 
-``` $validator->respond('refresh');```
+```$validator->respond('refresh');```
 
-###### Message
+Message:
 
 This will hide all of the form fields, and display the message. This is useful for showing a success message.
 
