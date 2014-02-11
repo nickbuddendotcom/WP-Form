@@ -75,7 +75,7 @@ if(!function_exists('register_form')) {
    * Example:
    *
    * register_form('YOUR_FORM_NAME', array(
-   *   'ajax'          => '1',     // 1 for AJAX, 0 for not
+   *   'ajax'          => 1,     // 1 for AJAX, 0 for not
    *   'wrap_tag'      => '',      // tag for wrapping each form field, default: div
    *   'wrap_class'    => '',      // class for wrapping each form feild
    *   'wrap_styles'   => '',      // inline styles applied to each wrap class, if you're into that
