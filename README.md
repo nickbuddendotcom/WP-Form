@@ -1,6 +1,8 @@
 # WP Form
 
-WP Form is a lightweight API for creating and validating WordPress forms. Check out the documentation below, or read a tutorial: [creating a login form](http://nickbudden.com/wp-form-wordpress-form-builder-plugin).
+WP Form is a lightweight API for creating and validating WordPress forms. All methods handle AJAX out of the box with admin-ajax, and all methods include fallbacks.
+
+Check out the documentation below, or read a tutorial: [creating a login form](http://nickbudden.com/wp-form-wordpress-form-builder-plugin).
 
 ***
 
@@ -112,13 +114,110 @@ function validate_foo() {
 
 ***
 
-## Form Builder
+## Basic Functions
 
+#### register_form($name, $form)
+
+You should call this function from inside a ```register_forms``` hook. Give the name of the form followed by an array of the form's attributes.
+
+```php
+register_form('YOUR_FORM_NAME', array(
+ 'ajax'          => 1,     // 1 for AJAX, 0 for not
+ 'wrap_tag'      => '',      // tag for wrapping each form field, default: div
+ 'wrap_class'    => '',      // class for wrapping each form feild
+ 'wrap_styles'   => '',      // inline styles applied to each wrap class, if you're into that
+ 'add_honeypoy'  => true,    // Whether to add a honeypot field to the form, default: true
+ 'fields'        => array(   // defines your form fields
+   'field_name'  => array(
+     'type'        => '',      // field type (text, email, textarea, submit, etc.) default: text
+     'wrap_tag'    => '',      // overwrites the wrap_tag set above
+     'wrap_class'  => '',      // overwrites the wrap_class set above
+     'wrap_style'  => '',      // overwrites the wrap_style set above
+     'wrap_id'     => '',      // an id for the wrapper around the field
+     'label'       => '',      // field's label
+     'placeholder' => '',      // field's placeholder
+     'class'       => '',      // class for input itself, not wrapper
+     'id'          => '',      // id for input itself, not wrapper
+     'autofocus'   => false,   // true/false, default: false
+     'validation'     => array(   // what validations do you want to perform on this field?
+       'required'     => true,    // if this field is required
+       'email'        => true,    // if this should be an eamil
+       'min_length'   => '',      // the minimum length for input
+       'max_length'   => '',      // the maximum length for the input
+       'number'       => true     // field should be a number
+     ),
+     'messages'       => array(   // custom error messages for the above validations
+       'required'     => __('Your Custom Error Message','') // a custom error message
+     )
+   ),
+   'fieldset'    => array(
+     'name'       => '',     // name of fieldset
+     'class'      => '',     // class for fieldset
+     'id'         => '',     // id for fieldset
+     'form'       => '',     // what form does this belong to
+     'disabled'   => false,  // whether this fieldset should be disabled
+     'fields'     => array()
+   )
+ )
+));
+```
+
+#### get_form($name)
+
+This function returns the HTML for the form you created with ```register_form()```.
+
+```<?php echo get_form('YOUR_FORM_NAME'); ?>```
 
 ***
 
-## Form Validator
+***
+
+## Validating Your Forms
+
+To validate your form, you'll need instantiate ```WP_Form_Validator($name)``` with the name of your form. This should be done after hooking into init, wp_ajax_[FORM_NAME], or wp_ajax_nopriv_[FORM_NAME].
+
+#### is_valid()
+
+Check's if the form is valid. If the form is invalid, it will automatically reprint the form with errors. This method does a few things:
+
+* Checks that the form was actually submitted
+* Checks the form's nonce
+* Checks against built-in validations
+
+If you've already set custom error messages with ```set_error()```, this method will also check for those.
+
+#### get_value($field)
+
+Returns the $_POST'd or $_GET'd value of the field.
+
+#### get_values()
+
+Returns an array of all $_POST'd or $_GET'd values from your form. It only returns values that were set as fields.
+
+#### respond($type, $args)
+
+Handles common actions you might want to take after having validating a form. Right now there are three responses, but you're welcome to add more:
+
+* Redirect
+
+Redirects the user to the given url
+
+``` $validator->respond('redirect', get_bloginfo('url'));```
+
+* Refresh
+
+Refreshes the current page. This is useful if you've done something in your validation function like log a user in.
+
+``` $validator->respond('refresh');```
+
+* Message
+
+This will hide all of the form fields, and display the message. This is useful for showing a success message.
+
+``` $validator->respond('message', array('message text', 'message_class'));```
 
 ***
 
-## Contributing
+## Questions
+
+Open a GitHub issue, or email me directly at [http://nickbudden.com/contact](http://nickbudden.com/contact)

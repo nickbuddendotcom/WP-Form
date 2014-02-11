@@ -217,7 +217,7 @@ class WP_Form_Validator {
    * @param  int      $length  minimum length
    * @return boolean           true if valid
    */
-  public function min_length($name, $message = '', $length) {
+  protected function min_length($name, $message = '', $length) {
     $value  = $this->get_value($name);
     $length = (int) $length;
 
@@ -238,7 +238,7 @@ class WP_Form_Validator {
    * @param  int      $length  maximum length
    * @return boolean           true if valid
    */
-  public function max_length($name, $message = '', $length) {
+  protected function max_length($name, $message = '', $length) {
     $value  = $this->get_value($name);
     $length = (int) $length;
 
@@ -258,7 +258,7 @@ class WP_Form_Validator {
    * @param  string   $message Custom error message if invalid
    * @return boolean           true if valid
    */
-  public function number($name, $message = '') {
+  protected function number($name, $message = '') {
     $value = $this->get_value($name);
     $value = preg_replace("/[^0-9]/", "", $value);
 
@@ -278,10 +278,10 @@ class WP_Form_Validator {
    * refresh the page). This method lets you trigger a reponse directly on
    * the validation object.
    * @param  string $type Type of response. redirect, message, or refresh.
-   * @param  array  $args Arguments for response
+   * @param  mixed  $args Arguments for response
    * @return mixed        Depends which response was selected
    */
-  public function respond($type, $args) {
+  public function respond($type, $args = '') {
     global $wp_form;
 
     switch ($type) {
