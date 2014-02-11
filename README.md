@@ -8,7 +8,7 @@ The code is definied inside a plugin, so throw it in your /plugins folder and ac
 
 ## Tutorial
 
-I've created a quick tutorial to help get your started: [Creating a Contact Form](http://nickbudden.com/wp-form-wordpress-form-builder-plugin).
+#### I've created a quick tutorial to help get your started: [Creating a Contact Form](http://nickbudden.com/wp-form-wordpress-form-builder-plugin).
 
 ## Usage
 
