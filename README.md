@@ -2,7 +2,7 @@
 
 WP Form is a lightweight API for creating and validating WordPress forms. All methods handle AJAX out of the box with admin-ajax, and all methods include fallbacks.
 
-Check out the documentation below, or read a tutorial: [Creating a Contact Form](http://nickbudden.com/wp-form-wordpress-form-builder-plugin).
+### Check out the documentation below, or read a tutorial: [Creating a Contact Form](http://nickbudden.com/wp-form-wordpress-form-builder-plugin).
 
 The code is definied inside a plugin, so throw it in your /plugins folder and active WP Form to use it.
 
