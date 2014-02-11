@@ -188,31 +188,25 @@ If you've already set custom error messages with ```set_error()```, this method 
 
 ###### get_value($field)
 
-Returns the $_POST'd or $_GET'd value of the field.
+Returns the `$_POST`'d or `$_GET`'d value of the field.
 
 ###### get_values()
 
-Returns an array of all $_POST'd or $_GET'd values from your form. It only returns values that were set as fields.
+Returns an array of all `$_POST`'d or `$_GET`'d values from your form. It only returns values that were set as fields.
 
 ###### respond($type, $args)
 
 Handles common actions you might want to take after having validating a form. Right now there are three responses, but you're welcome to add more:
 
-Redirect:
-
-Redirects the user to the given url
+Redirect: Redirects the user to the given url
 
 `$validator->respond('redirect', get_bloginfo('url'));`
 
-Refresh:
-
-Refreshes the current page. This is useful if you've done something in your validation function like log a user in.
+Refresh: Refreshes the current page. This is useful if you've done something in your validation function like log a user in.
 
 `$validator->respond('refresh');`
 
-Message:
-
-This will hide all of the form fields, and display the message. This is useful for showing a success message.
+Message: This will hide all of the form fields, and display the message. This is useful for showing a success message.
 
 `$validator->respond('message', array('message text', 'message_class'));`
 
