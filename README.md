@@ -1,22 +1,21 @@
-### Lightweight API for creating/validating forms in WordPress.
+# WP Form
 
-#### Index
+WP Form is a lightweight API for creating and validating WordPress forms. Check out the documentation below, or read a tutorial: [creating a login form](http://nickbudden.com/wp-form-wordpress-form-builder-plugin).
 
-* Usage
-* Hooks
-* WP_Form
-* WP_Form Validator
-* Contributing
+***
 
-### Usage
+## Usage
 
 To register a form, hook into `register_forms` with a function to register your forms.
 
-```
-
+```php
     // Hook into 'register_forms'
     add_action('register_forms', 'register_my_forms');
+```
 
+Inside of your registration function, you can call ```register_form``` once for each form you want to register.
+
+```php
     function register_my_forms() {
 
       // Register a form
@@ -38,19 +37,21 @@ To register a form, hook into `register_forms` with a function to register your 
          )
        )
      ));
-    }
 
-```php
+    // repeat the above code to register more forms...
+
+    }
+```
 
 Now that you've registered your form, you can print it with the get_form() function:
 
-```
-    <?php echo get_form('foo'); ?>
 ```php
+    <?php echo get_form('foo'); ?>
+```
 
 To validate your form, hook into your validation function. Ajax is handled automatically if you set ajax => 1 when you called register_form.
 
-```
+```php
     // AJAX for logged in users wp_ajax_[FORM_NAME]
     add_action('wp_ajax_foo', 'validate_foo');
 
@@ -63,13 +64,11 @@ To validate your form, hook into your validation function. Ajax is handled autom
     function validate_foo() {
       // Contents of this function are shown in the next code block
     }
-
-```php
+```
 
 Your validation function should create a new isntance of WP_Form_Validator, and there are a few basic functions you'll want to call.
 
-```
-
+```php
     function validate_foo() {
 
       // In case the plugin hasn't been deactivated
@@ -109,5 +108,17 @@ Your validation function should create a new isntance of WP_Form_Validator, and 
       $validator->respond('redirect', get_bloginfo('url'));
 
     }
+```
 
-```php
+***
+
+## Form Builder
+
+
+***
+
+## Form Validator
+
+***
+
+## Contributing
