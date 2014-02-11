@@ -202,19 +202,19 @@ Redirect:
 
 Redirects the user to the given url
 
-```$validator->respond('redirect', get_bloginfo('url'));```
+`$validator->respond('redirect', get_bloginfo('url'));`
 
 Refresh:
 
 Refreshes the current page. This is useful if you've done something in your validation function like log a user in.
 
-```$validator->respond('refresh');```
+`$validator->respond('refresh');`
 
 Message:
 
 This will hide all of the form fields, and display the message. This is useful for showing a success message.
 
-```$validator->respond('message', array('message text', 'message_class'));```
+`$validator->respond('message', array('message text', 'message_class'));`
 
 ***
 
