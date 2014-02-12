@@ -4,11 +4,20 @@ jQuery(document).ready(function($) {
 
     e.preventDefault();
 
-    var $this = $(this),
+    var $this   = $(this),
+        $submit = $this.find('input[type=submit]'),
         resp,
         fieldName,
         $message,
         $error;
+
+    // Prevent multiple submits
+    if($this.hasClass('wp-form-is-submitted')) {
+      return false;
+    } else {
+      $this.addClass('wp-form-is-submitted');
+      $submit.attr('disabled', 'disabled');
+    }
 
     $.post(
       WP_Form_Ajax.ajaxurl, {
@@ -16,6 +25,7 @@ jQuery(document).ready(function($) {
         data    : $this.serialize()
       },
       function( response ) {
+
         resp = JSON.parse( response );
 
         if(resp.respond) {
@@ -31,6 +41,10 @@ jQuery(document).ready(function($) {
           }
           return;
         }
+
+        // Remove our submit blocks
+        $this.removeClass('wp-form-is-submitted');
+        $submit.removeAttr('disabled');
 
         if(resp.messages) {
           $.each(resp.messages, function(i, message) {

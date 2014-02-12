@@ -155,7 +155,10 @@ class WP_Form_Validator {
   private function validate_field($name, $field) {
 
     // Required should always be run first, no matter what order it was added
-    $ordered_validations = array_merge(array_flip(array('required')), $field['validation']);
+    $ordered_validations = array();
+    if($field['validation']){
+      $ordered_validations = array_merge(array_flip(array('required')), $field['validation']);
+    }
 
     foreach($ordered_validations as $validation => $value) {
       if(method_exists($this, $validation)) {
