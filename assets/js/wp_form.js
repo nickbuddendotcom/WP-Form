@@ -26,6 +26,8 @@ jQuery(document).ready(function($) {
       },
       function( response ) {
 
+        console.log(response);
+
         resp = JSON.parse( response );
 
         if(resp.respond) {

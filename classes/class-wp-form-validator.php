@@ -1,5 +1,7 @@
 <?php
 
+/* TODO: I've replaced all the $wp_form with $wp_forms but I dont know that it'll actually work */
+
 class WP_Form_Validator {
 
   /**
@@ -285,7 +287,7 @@ class WP_Form_Validator {
    * @return mixed        Depends which response was selected
    */
   public function respond($type, $args = '') {
-    global $wp_form;
+    global $wp_forms;
 
     switch ($type) {
       case 'redirect':
@@ -301,13 +303,13 @@ class WP_Form_Validator {
           echo json_encode(array('respond' => array('message' => $args)));
           exit;
         } else {
-          if(!$wp_form) {
-            $wp_form = array();
-            if(!$wp_form['respond_message']) {
-              $wp_form['respond_message'][$this->name] = array();
+          if(!$wp_forms) {
+            $wp_forms = array();
+            if(!$wp_forms['respond_message']) {
+              $wp_forms['respond_message'][$this->name] = array();
             }
           }
-          $wp_form['respond_message'][$this->name] = $args;
+          $wp_forms['respond_message'][$this->name] = $args;
         }
       case 'refresh':
         if($this->is_ajax) {
@@ -332,7 +334,7 @@ class WP_Form_Validator {
   }
 
   public function reprint_form() {
-    global $wp_form;
+    global $wp_forms;
 
     if(empty($this->errors)) {
       return;
@@ -344,20 +346,20 @@ class WP_Form_Validator {
       exit;
     }
 
-    if(!$wp_form) {
-      $wp_form = array();
+    if(!$wp_forms) {
+      $wp_forms = array();
 
-      if(!$wp_form['errors']) {
-        $wp_form['errors'] = array();
+      if(!$wp_forms['errors']) {
+        $wp_forms['errors'] = array();
       }
 
-      if(!$wp_form['messages']) {
-        $wp_form['messages'] = array();
+      if(!$wp_forms['messages']) {
+        $wp_forms['messages'] = array();
       }
     }
 
-    $wp_form['errors'][$this->name] = $this->errors;
-    $wp_form['messages'][$this->name] = $this->messages;
+    $wp_forms['errors'][$this->name] = $this->errors;
+    $wp_forms['messages'][$this->name] = $this->messages;
 
     return;
   }
