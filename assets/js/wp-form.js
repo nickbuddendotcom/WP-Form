@@ -1,5 +1,10 @@
 jQuery(document).ready(function($) {
 
+  /**
+   * Submits AJAX-ified forms
+   *
+   * @return {mixed} Return handled in a 'respond' from WP_Form_Validator
+   */
   $('form[data-wp-form-ajax="1"]').submit(function(e) {
 
     e.preventDefault();
@@ -82,4 +87,35 @@ jQuery(document).ready(function($) {
     );
 
   });
+
+  /**
+   *  Initialize jQuery UI date widgetEnhanced Date
+   */
+  $('.wp-form-date').each(function(i, el) {
+    var $this       = $(this),
+        attrs       = {
+          dateFormat  : $this.data('date-format') || "yy-mm-dd",
+          minDate     : $this.attr('min') || null,
+          maxDate     : $this.attr('max') || null
+        };
+
+    $this.datepicker(attrs);
+  });
+
+  /**
+   * Initialize Select2 Enhanced Select
+   */
+  $('.wp-form-select2').each(function(i, el) {
+    var $this = $(this),
+        attrs = {
+          minimumResultsForSearch : -1,
+          placeholder             : $this.attr('placeholder')
+        };
+
+    // Select2 Requires an empty option to support placeholders
+    $this.prepend("<option value=''></option>")
+      .val('')
+      .select2(attrs);
+  });
+
 });

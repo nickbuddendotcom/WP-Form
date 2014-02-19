@@ -17,6 +17,13 @@ class WP_Form {
   private $fields = array();
 
   /**
+   * Count HTML entries, since these don't have slugs
+   *
+   * @var integer
+   */
+  private $html_count = 0;
+
+  /**
    * Stores fields, default attributes, and the form
    * itself in instance variables
    * @param string $name name of this form
@@ -64,7 +71,14 @@ class WP_Form {
    */
   public function add_field($slug, $args, $type = 'text') {
     global $wp_forms;
+
     $args['type'] = $type;
+
+    $value = (strtoupper($wp_forms[$this->slug]['method']) === 'GET') ? $_GET[$slug] : $_POST[$slug];
+    if(isset($value)) {
+      $args['value'] = $value;
+    }
+
     $wp_forms[$this->slug]['fields'][$slug] = $args;
   }
 
@@ -165,6 +179,18 @@ class WP_Form {
   }
 
   /**
+   * Wrapper for adding a date field
+   *
+   * @param string $slug Field's slug
+   * @param array  $args Arguments for field
+   *
+   * @param void
+   */
+  public function date($slug, $args) {
+    $this->add_field($slug, $args, 'date');
+  }
+
+  /**
    * Wrapper for adding a select field
    *
    * @param string $slug Field's slug
@@ -186,6 +212,19 @@ class WP_Form {
    */
   public function submit($slug, $args) {
     $this->add_field($slug, $args, 'submit');
+  }
+
+  /**
+   * Adds arbitrary HTML...invents a slug so
+   * that it fits the format of other fields
+   *
+   * @param array  $content HTML content
+   *
+   * @return void
+   */
+  public function html($content) {
+    $this->html_count++;
+    $this->add_field('html_'.$this->html_count, array('content' => $content), 'html');
   }
 
   /**

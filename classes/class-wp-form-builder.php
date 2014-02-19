@@ -33,10 +33,11 @@ class WP_Form_Builder {
     $this->fields = $wp_forms[$slug]['fields'];
     unset($wp_forms[$slug]['fields']);
 
-    $this->all_fields_attrs = $wp_forms[$slug]['all_fields_attrs'];
+    $this->all_fields_attrs = wp_parse_args($wp_forms[$slug]['all_fields_attrs'], $this->all_fields_attrs);
     unset($wp_forms[$slug]['all_fields_attrs']);
 
     $this->form = $wp_forms[$slug];
+
   }
 
   /**
@@ -172,7 +173,7 @@ class WP_Form_Builder {
    */
   public function field_markup($name, $args) {
 
-    global $wp_form;
+    global $wp_forms;
 
     $wrap_tag = ($args['wrap_tag']) ? $args['wrap_tag'] : $this->all_fields_attrs['wrap_tag'];
 
@@ -180,19 +181,20 @@ class WP_Form_Builder {
     $wrap_attrs = array(
       'class'    => ($args['wrap_class']) ? $args['wrap_class'] : $this->all_fields_attrs['wrap_class'],
       'id'       => ($args['wrap_id']) ? $args['wrap_id'] : $this->all_fields_attrs['wrap_id'],
-      'id'       => ($args['wrap_style']) ? $args['wrap_style'] : $this->all_fields_attrs['wrap_style']
+      'style'    => ($args['wrap_style']) ? $args['wrap_style'] : $this->all_fields_attrs['wrap_style']
     );
 
     $output = $this->open_html_tag($wrap_tag, $wrap_attrs, array('class', 'id', 'style'));
 
     if($args['label']) {
-      $output .= '<label for="' . esc_attr($name) . '">' . esc_attr($args['label']) . '</label>';
+      $output .= '<label for="' . esc_attr($name) . '">' . esc_attr($args['label']) . '</label><br />';
     }
 
     // Get the markup for our field type
     $args['name']   = $name;
     $args['type']   = ($args['type']) ? $args['type'] : 'text';
     $args['value']  = ($args['value']) ? $args['value'] : $_POST[$name];
+
     $html_callback  = $args['type'] . "_html";
 
     if(method_exists($this, $html_callback)) {
@@ -203,8 +205,8 @@ class WP_Form_Builder {
     }
 
     // Print Errors
-    if( $wp_form['errors'][$this->form['name']][$name] ) {
-      $output .= '<div class="wp-form-error">' . esc_attr($wp_form['errors'][$this->form['name']][$name]) . '</div>';
+    if( $wp_forms['errors'][$this->slug][$name] ) {
+      $output .= '<div class="wp-form-error">' . esc_attr($wp_forms['errors'][$this->slug][$name]) . '</div>';
     } else {
       // Empty hidden errors let us populate them via AJAX
       $output .= '<div class="wp-form-error" style="display:none"></div>';
@@ -218,12 +220,12 @@ class WP_Form_Builder {
   }
 
   /**
-   * [html_html description]
+   * Prints arbitrary HTML
    *
-   * @return [type] [description]
+   * @return string HTML
    */
-  protected function html_html() {
-    // for adding raw html...I should change the names of these functions to [$]_markup instead of [$]_html
+  protected function html_html($args = array()) {
+    return $args['content'];
   }
 
   /**
@@ -245,12 +247,54 @@ class WP_Form_Builder {
   }
 
   /**
+   * Utility method to push a class onto $args['class']
+   *
+   * @param array   $args   Arguments array we want to push onto
+   * @param string  $class  Class to push
+   *
+   * @return Array Array with pushed class
+   */
+  private function push_class($args, $class) {
+    if(!is_array($args['class']) && isset($args['class'])) {
+      $args['class'] = explode(',', $args['class']);
+    } elseif(!isset($args['class'])) {
+      $args['class'] = array();
+    }
+
+    array_push($args['class'], $class);
+    return $args;
+  }
+
+  /**
+   * Build a jQuery UI date widget
+   *
+   * @param  array $args field attributes
+   * @return string      HTML for field
+   */
+  protected function date_html($args = array()) {
+    $whitelist = array('name','type','id','value','placeholder','class','style','autofocus','required','min','max');
+
+    if($args['enhanced']) {
+      $args = $this->push_class($args, 'wp-form-date');
+      $args['type'] = 'text';
+    }
+
+    $output = $this->open_html_tag('input', $args, $whitelist);
+    return $output;
+  }
+
+  /**
    * Builds HTML for select
    * @param  array $args field attributes
    * @return string      HTML for field
    */
   protected function select_html($args = array()) {
-    $output = $this->open_html_tag('select', $args, array('name', 'id', 'required', 'class'));
+
+    if($args['enhanced']) {
+      $args = $this->push_class($args, 'wp-form-select2');
+    }
+
+    $output = $this->open_html_tag('select', $args, array('name', 'id', 'required', 'class', 'style', 'placeholder'));
 
     foreach($args['options'] as $key => $val) {
       $output .= '<option value="' . $key . '">' . $val . '</option>';

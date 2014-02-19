@@ -21,11 +21,7 @@ define( 'WP_Form_Version', '1.0.0' );
  * If these classes haven't already been included elsewhere,
  * initialize the WP_Form classes and actions
  */
-if(
-  !class_exists('WP_Form') &&
-  !class_exists('WP_Form_Builder') &&
-  !class_exists('WP_Form_Validator')
-) {
+if(!class_exists('WP_Form') && !class_exists('WP_Form_Builder') && !class_exists('WP_Form_Validator')) {
 
   /**
    * Required Classes
@@ -46,28 +42,40 @@ if(
     add_action('wp', function() { do_action('register_forms'); });
   }
 
-  // I don't remember how to add these actions...come back to it...s
-  // Leaving off: adding an action for handling forms... should pass an arg for these three...
-  // add_action('init', 'handle_test_form');
-  // add_action('wp_ajax_test_form', 'handle_test_form');
-  // add_action('wp_ajax_nopriv_test_form', 'handle_test_form');
-
   /**
    * Enqueue the form script for handling AJAX $_POST's
    * @return void
    * @todo   we don't need this script if non of our forms are ajax-ified. Check that.
    */
   if(!function_exists('wp_form_enqueue_scripts')) {
+
     function wp_form_enqueue_scripts() {
 
+      // Default Styles
+      wp_enqueue_style(
+        'wp-form',
+        get_template_directory_uri()  . "/WP_Form/assets/css/wp-form.css",
+        '',
+        '1.0'
+      );
+
+      // Select2
       wp_enqueue_script(
-        'wp_form',
-        trailingslashit(plugin_dir_url(  __FILE__ ))  . "assets/js/wp_form.js",
-        array('jquery', 'json2'),
-        '1.0',
+        'select2',
+        get_template_directory_uri()  . "/WP_Form/assets/js/select2/select2.js",
+        array('jquery'),
+        '3.4.5',
         true
       );
 
+      // Script
+      wp_enqueue_script(
+        'wp_form',
+        get_template_directory_uri()  . "/WP_Form/assets/js/wp-form.js",
+        array('jquery', 'jquery-ui-datepicker', 'select2', 'json2'),
+        '1.0',
+        true
+      );
       wp_localize_script( 'wp_form', 'WP_Form_Ajax', array('ajaxurl' => admin_url( 'admin-ajax.php' )));
 
     }

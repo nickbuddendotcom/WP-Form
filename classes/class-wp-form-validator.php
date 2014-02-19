@@ -57,7 +57,7 @@ class WP_Form_Validator {
       parse_str($_POST["data"], $this->data);
     } else {
       $this->is_ajax = false;
-      $this->data = ($this->method === 'GET') ? $_GET : $_POST;
+      $this->data = (strtoupper($this->form['method']) === 'GET') ? $_GET : $_POST;
     }
 
   }
@@ -99,6 +99,7 @@ class WP_Form_Validator {
    * @return boolean True if valid, false if some field has an error
    */
   public function valid() {
+    global $wp_forms;
 
     // We only need to run user-registered validations once, so we
     // tie this to the already_checked variable
@@ -121,7 +122,7 @@ class WP_Form_Validator {
 
     // Users can add their own errors after we've checked built-in errors,
     // so we need to double check $this->errors every time valid is called
-    if(empty($this->errors)) {
+    if(empty($wp_forms['errors'][$this->name])) {
       return true;
     } else {
       $this->reprint_form();
@@ -312,11 +313,10 @@ class WP_Form_Validator {
           $wp_forms['respond_message'][$this->name] = $args;
         }
       case 'refresh':
+        // You don't need to refresh if it was posted via server...only via ajax
         if($this->is_ajax) {
           echo json_encode(array('respond' => array('refresh' => true)));
           exit;
-        } else {
-          die(wp_safe_redirect($_SERVER['REQUEST_URI']));
         }
     }
 
@@ -324,7 +324,8 @@ class WP_Form_Validator {
   }
 
   public function set_error($name, $message) {
-    $this->errors[$name] = $message;
+    global $wp_forms;
+    $wp_forms['errors'][$this->name][$name] = $message;
   }
 
   // TODO: so far there's no way to unset a message...
@@ -358,7 +359,7 @@ class WP_Form_Validator {
       }
     }
 
-    $wp_forms['errors'][$this->name] = $this->errors;
+    // $wp_forms['errors'][$this->name] = $this->errors;
     $wp_forms['messages'][$this->name] = $this->messages;
 
     return;
