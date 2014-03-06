@@ -31,7 +31,7 @@ jQuery(document).ready(function($) {
       },
       function( response ) {
 
-        console.log(response);
+        console.log('resp', response);
 
         resp = JSON.parse( response );
 
@@ -103,19 +103,10 @@ jQuery(document).ready(function($) {
   });
 
   /**
-   * Initialize Select2 Enhanced Select
+   * Initialize Selectize Enhanced Select
    */
-  $('.wp-form-select2').each(function(i, el) {
-    var $this = $(this),
-        attrs = {
-          minimumResultsForSearch : -1,
-          placeholder             : $this.attr('placeholder')
-        };
-
-    // Select2 Requires an empty option to support placeholders
-    $this.prepend("<option value=''></option>")
-      .val('')
-      .select2(attrs);
+  $('.wp-form-selectize').selectize({
+    create    : true
   });
 
 });

@@ -217,6 +217,34 @@ class WP_Form_Validator {
   }
 
   /**
+   * A minimum date for date fields.
+   *
+   * @param string   $name    Field name
+   * @param string   $message Custom error message if invalid
+   * @param string   $value   Minimum date value
+   *
+   * @return boolean          true if valid
+   */
+  protected function min_date($name, $message, $min) {
+    $value  = $this->get_value($name);
+    return (strtotime($value) > strtotime($min)) ? true : false;
+  }
+
+  /**
+   * A maximum date for date fields.
+   *
+   * @param string   $name    Field name
+   * @param string   $message Custom error message if invalid
+   * @param string   $value   Maximum date value
+   *
+   * @return boolean          true if valid
+   */
+  protected function max_date($name, $message, $max) {
+    $value  = $this->get_value($name);
+    return (strtotime($value) < strtotime($max)) ? true : false;
+  }
+
+  /**
    * Validation: has at least minimum length
    * @param  string   $name    Field name
    * @param  string   $message Custom error message if invalid
@@ -331,19 +359,20 @@ class WP_Form_Validator {
   // TODO: so far there's no way to unset a message...
   public function set_message($message, $class = '') {
     $class = (is_array($class)) ? implode(" ", $class) : $class;
-    $this->messages[] = array($message, $class);
+    global $wp_forms;
+    $wp_forms['messages'][$this->name][$name] = array($message, $class);
   }
 
   public function reprint_form() {
     global $wp_forms;
 
-    if(empty($this->errors)) {
+    if(empty($wp_forms['errors'][$this->name])) {
       return;
     }
 
     // If this is AJAX just echo them...
     if($this->is_ajax) {
-      echo json_encode( array('errors' => $this->errors, 'messages' => $this->messages ));
+      echo json_encode( array('errors' => $wp_forms['errors'][$this->name], 'messages' => $wp_forms['messages'][$this->name][$name] ));
       exit;
     }
 

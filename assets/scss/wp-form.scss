@@ -4,4 +4,7 @@
 
 @import "compass";
 @import "jquery-ui.datepicker";
-@import "select2";
+
+.wp-form-selectize .selectize-input {
+  margin-top: 5px;
+}

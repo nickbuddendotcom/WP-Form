@@ -1,7 +1,5 @@
 <?php
 
-/* TODO: fieldset support... */
-
 class WP_Form {
 
   /**
@@ -9,12 +7,6 @@ class WP_Form {
    * @var string
    */
   private $plugin_slug = 'WP_Form';
-
-  /**
-   * Stores all user-registered form fields
-   * @var array
-   */
-  private $fields = array();
 
   /**
    * Count HTML entries, since these don't have slugs
@@ -40,6 +32,7 @@ class WP_Form {
     $wp_forms[$slug] = $form;
     $wp_forms[$slug]['all_fields_attrs'] = array();
     $wp_forms[$slug]['fields'] = array();
+    $wp_forms[$slug]['fieldsets'] = array();
 
     // We want to pull 'fields' out of the form array, and store it in its own array
     // We also want to pull out any 'wrap_' keys, because these are common attributes
@@ -163,6 +156,8 @@ class WP_Form {
    * @param void
    */
   public function checkbox($slug, $args) {
+    if(!$args['value']) $args['value'] = 1;
+    if(!$args['checked']) unset($args['checked']);
     $this->add_field($slug, $args, 'checkbox');
   }
 
@@ -228,13 +223,18 @@ class WP_Form {
   }
 
   /**
-   * [fieldset description]
+   * Stores a fieldset and its attributes. It is only necessary
+   * to declare a fieldset explicitly in this way if you're
+   * adding attributes to it.
    *
-   * @return [type] [description]
+   * @param  string $slug Slug for fieldset
+   * @param  array  $args Attributes for fieldset
+   * @return void
    */
-  public function fieldset() {
-    // This sould specify the attributes of a fieldset. you'd then add to the fieldset
-    // by calling something like $form->input('slug', array('fieldset' => 'fieldset_slug'));
+  public function fieldset($slug, $args) {
+    global $wp_forms;
+
+    $wp_forms[$this->slug]['fieldsets'][$slug] = $args;
   }
 
 }

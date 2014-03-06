@@ -59,12 +59,27 @@ if(!class_exists('WP_Form') && !class_exists('WP_Form_Builder') && !class_exists
         '1.0'
       );
 
-      // Select2
+      // Selectize
+      wp_enqueue_style(
+        'selectize',
+        get_template_directory_uri()  . "/WP_Form/assets/js/selectize.js/dist/css/selectize.css",
+        '',
+        '1.0'
+      );
+
+      wp_enqueue_style(
+        'selectize.default',
+        get_template_directory_uri()  . "/WP_Form/assets/js/selectize.js/dist/css/selectize.default.css",
+        '',
+        '1.0'
+      );
+
+      // Selectize
       wp_enqueue_script(
-        'select2',
-        get_template_directory_uri()  . "/WP_Form/assets/js/select2/select2.js",
+        'selectize',
+        get_template_directory_uri()  . "/WP_Form/assets/js/selectize.js/dist/js/standalone/selectize.js",
         array('jquery'),
-        '3.4.5',
+        '1.0',
         true
       );
 
@@ -72,7 +87,7 @@ if(!class_exists('WP_Form') && !class_exists('WP_Form_Builder') && !class_exists
       wp_enqueue_script(
         'wp_form',
         get_template_directory_uri()  . "/WP_Form/assets/js/wp-form.js",
-        array('jquery', 'jquery-ui-datepicker', 'select2', 'json2'),
+        array('jquery', 'jquery-ui-datepicker', 'selectize', 'json2'),
         '1.0',
         true
       );

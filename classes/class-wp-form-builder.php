@@ -9,6 +9,13 @@ class WP_Form_Builder {
   private $plugin_slug = 'WP_Form';
 
   /**
+   * Stores the fieldset we're currently adding, empty if none.
+   *
+   * @var string
+   */
+  private $open_fieldset;
+
+  /**
    * Default values for new fields
    * @var array
    */
@@ -32,6 +39,9 @@ class WP_Form_Builder {
 
     $this->fields = $wp_forms[$slug]['fields'];
     unset($wp_forms[$slug]['fields']);
+
+    $this->fieldsets = $wp_forms[$slug]['fieldsets'];
+    unset($wp_forms[$slug]['fieldsets']);
 
     $this->all_fields_attrs = wp_parse_args($wp_forms[$slug]['all_fields_attrs'], $this->all_fields_attrs);
     unset($wp_forms[$slug]['all_fields_attrs']);
@@ -73,24 +83,32 @@ class WP_Form_Builder {
     // Build fieldset and fields
     foreach($this->fields as $slug => $args) {
 
-      // TODO: fieldset support...
-      // if($name === 'fieldset') {
+      // If a different fieldset is still open, close it first
+      if(isset($this->open_fieldset) && (!isset($args['fieldset']) || $this->open_fieldset !== $args['fieldset'])) {
+        $output .= '</fieldset>';
+        unset($this->open_fieldset);
+      }
 
-      //   $fields = $args['fields'];
-      //   unset($args['fields']);
+      // If we should open a new fieldset
+      if(isset($args['fieldset']) && $this->open_fieldset !== $args['fieldset']) {
+        $output .= $this->open_html_tag('fieldset', $this->fieldsets[$args['fieldset']], array('disabled','name','form','id','class'));
 
-      //   $output .= $this->open_html_tag('fieldset', $args, array('disabled','name','form','id','class'));
+        if($this->fieldsets[$args['fieldset']] && $this->fieldsets[$args['fieldset']]['legend']) {
+          $output .= '<legend>' . esc_attr($this->fieldsets[$args['fieldset']]['legend']) . '</legend>';
+        }
 
-      //   foreach($fields as $key => $value) {
-      //     $output .= $this->field_markup($key, $value);
-      //   }
+        $this->open_fieldset = $args['fieldset'];
+      }
 
-      //   $output .= '</fieldset>';
+      // Markup for field itself
+      $output .= $this->field_markup($slug, $args);
 
-      // } else {
-        $output .= $this->field_markup($slug, $args);
-      // }
+    }
 
+    // Close a fieldset we might've left open on the last iteration of the loop
+    if(isset($this->open_fieldset)) {
+      $output .= '</fieldset>';
+      unset($this->open_fieldset);
     }
 
     // Boo to spam
@@ -108,13 +126,38 @@ class WP_Form_Builder {
    *
    * @param  string $tag       HTML tag we're rendering (div, ul, li, etc.)
    * @param  array  $attrs     key => value pairs of the tag's attributes
-   * @param  array  $whitelist An array of whitelisted attributes for the opening tag
    * @return string            HTML for the opening tag, i.e. <div class='a_class' id='an_id'>
-   * @todo   Are whitelists necessary? Why not let people add <div stop='its_hammer_time'> if they want?
    */
-  protected function open_html_tag($tag, $attrs, $whitelist) {
+  protected function open_html_tag($tag, $attrs) {
 
     $output = "<$tag";
+
+    // What we should add as attributes
+    $whitelist = array(
+      'action',
+      'method',
+      'enctype',
+      'novalidate',
+      'data-wp-form-ajax',
+      'name',
+      'type',
+      'id',
+      'class',
+      'value',
+      'placeholder',
+      'style',
+      'autofocus',
+      'required',
+      'min',
+      'max',
+      'checked'
+    );
+
+    // Add data attributes to whitelist
+    foreach($attrs['data'] as $data => $value) {
+      $whitelist[] = 'data-' . $data;
+      $attrs['data-' . $data] = $value;
+    }
 
     foreach($whitelist as $key) {
 
@@ -126,7 +169,7 @@ class WP_Form_Builder {
         $attrs[$key] = implode(" ", $attrs[$key]);
       }
 
-      if($key === 'required' || $key === 'disabled') {
+      if($key === 'required' || $key === 'disabled' || $key === 'checked') {
         if(true == $value) {
           $output .= ' ' . $key;
         }
@@ -148,7 +191,6 @@ class WP_Form_Builder {
   /**
    * Builds HTML for messages set in WP_Form_Validator
    * @return string HTML for message
-   * @todo   whitelist attributes for opening tag
    */
   private function messages() {
     global $wp_forms;
@@ -175,18 +217,20 @@ class WP_Form_Builder {
 
     global $wp_forms;
 
-    $wrap_tag = ($args['wrap_tag']) ? $args['wrap_tag'] : $this->all_fields_attrs['wrap_tag'];
+    $wrap_tag = (isset($args['wrap_tag'])) ? $args['wrap_tag'] : $this->all_fields_attrs['wrap_tag'];
 
     // if wrap attributes haven't been set on this field, they fallback to $this->all_fields_attrs
     $wrap_attrs = array(
-      'class'    => ($args['wrap_class']) ? $args['wrap_class'] : $this->all_fields_attrs['wrap_class'],
-      'id'       => ($args['wrap_id']) ? $args['wrap_id'] : $this->all_fields_attrs['wrap_id'],
-      'style'    => ($args['wrap_style']) ? $args['wrap_style'] : $this->all_fields_attrs['wrap_style']
+      'class'    => (isset($args['wrap_class'])) ? $args['wrap_class'] : $this->all_fields_attrs['wrap_class'],
+      'id'       => (isset($args['wrap_id'])) ? $args['wrap_id'] : $this->all_fields_attrs['wrap_id'],
+      'style'    => (isset($args['wrap_style'])) ? $args['wrap_style'] : $this->all_fields_attrs['wrap_style']
     );
 
-    $output = $this->open_html_tag($wrap_tag, $wrap_attrs, array('class', 'id', 'style'));
+    if($args['type'] !== 'hidden' && $args['type'] !== 'html') {
+      $output = $this->open_html_tag($wrap_tag, $wrap_attrs, array('class', 'id', 'style'));
+    }
 
-    if($args['label']) {
+    if($args['label'] && $args['type'] !== 'checkbox') {
       $output .= '<label for="' . esc_attr($name) . '">' . esc_attr($args['label']) . '</label><br />';
     }
 
@@ -213,7 +257,9 @@ class WP_Form_Builder {
     }
 
     // Close the field wrapper
-    $output .= "</" . $wrap_tag . ">";
+    if($args['type'] !== 'hidden' && $args['type'] !== 'html') {
+      $output .= "</" . $wrap_tag . ">";
+    }
 
     return $output;
 
@@ -236,13 +282,17 @@ class WP_Form_Builder {
    */
   protected function text_html($args = array()) {
 
-    $whitelist = array('name','type','id','value','placeholder','class','style','autofocus','required');
+    $output = $this->open_html_tag('input', $args);
+    return $output;
+  }
 
-    if($args['type'] === 'number') {
-      $whitelist = array_push($whitelist, 'min', 'max');
-    }
-
-    $output = $this->open_html_tag('input', $args, $whitelist);
+  /**
+   * Builds HTML for input[type=hidden].
+   * @param  array $args field attributes
+   * @return string      HTML for field
+   */
+  protected function hidden_html($args = array()) {
+    $output = $this->open_html_tag('input', $args);
     return $output;
   }
 
@@ -272,14 +322,13 @@ class WP_Form_Builder {
    * @return string      HTML for field
    */
   protected function date_html($args = array()) {
-    $whitelist = array('name','type','id','value','placeholder','class','style','autofocus','required','min','max');
 
     if($args['enhanced']) {
       $args = $this->push_class($args, 'wp-form-date');
       $args['type'] = 'text';
     }
 
-    $output = $this->open_html_tag('input', $args, $whitelist);
+    $output = $this->open_html_tag('input', $args);
     return $output;
   }
 
@@ -291,10 +340,14 @@ class WP_Form_Builder {
   protected function select_html($args = array()) {
 
     if($args['enhanced']) {
-      $args = $this->push_class($args, 'wp-form-select2');
+      $args = $this->push_class($args, 'wp-form-selectize');
     }
 
     $output = $this->open_html_tag('select', $args, array('name', 'id', 'required', 'class', 'style', 'placeholder'));
+
+    if($args['placeholder']) {
+      $output .= '<option></option>';
+    }
 
     foreach($args['options'] as $key => $val) {
       $output .= '<option value="' . $key . '">' . $val . '</option>';
@@ -311,6 +364,15 @@ class WP_Form_Builder {
    * @todo   do this...
    */
   private function checkbox_html($args = array()) {
+
+    $for = (isset($args['id'])) ? $args['id'] : $args['name'];
+
+    $output  = '<label for="' . esc_attr($for) . '">';
+    $output .= $this->open_html_tag('input', $args);
+    $output .= esc_attr($args['label']);
+    $output .= '</label>';
+
+    return $output;
   }
 
   /**
