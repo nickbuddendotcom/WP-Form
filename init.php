@@ -15,7 +15,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-define( 'WP_Form_Version', '1.0.0' );
+define( 'WP_Form_Version', '0.0.2' );
 
 /**
  * If these classes haven't already been included elsewhere,

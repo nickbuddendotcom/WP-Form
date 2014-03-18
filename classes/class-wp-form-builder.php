@@ -170,9 +170,7 @@ class WP_Form_Builder {
       }
 
       if($key === 'required' || $key === 'disabled' || $key === 'checked') {
-        if(true == $value) {
-          $output .= ' ' . $key;
-        }
+        $output .= ' ' . $key;
       } else {
         $output .= ' ' . $key . '="' . $attrs[$key] .'"';
       }

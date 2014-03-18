@@ -41,7 +41,7 @@ jQuery(document).ready(function($) {
           } else if(resp.respond.redirect) {
             window.location = resp.respond.redirect;
           } else if(resp.respond.message) {
-            $message = $('<div />').addClass(resp.respond.message[1]).text(resp.respond.message[0]).hide();
+            $message = $('<div />').addClass(resp.respond.message[1]).html(resp.respond.message[0]).hide();
             $this.find("*").slideUp();
             $this.before( $message );
             $message.slideDown();
@@ -55,7 +55,7 @@ jQuery(document).ready(function($) {
 
         if(resp.messages) {
           $.each(resp.messages, function(i, message) {
-            $message = $('<div />').addClass(message[1]).text(message[0]).hide();
+            $message = $('<div />').addClass(message[1]).html(message[0]).hide();
             $this.before( $message );
             $message.slideDown();
           });

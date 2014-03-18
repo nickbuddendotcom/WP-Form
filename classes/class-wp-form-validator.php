@@ -45,6 +45,10 @@ class WP_Form_Validator {
   public function __construct($form_name) {
     global $wp_forms;
 
+    // if($form_name === 'edit_team') {
+      // echo json_encode('wp_form_validator register ' . $form_name);
+    // }
+
     if(!isset($wp_forms[$form_name])) {
       $this->reprint_form();
     }
