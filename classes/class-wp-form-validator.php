@@ -1,5 +1,7 @@
 <?php
 
+/* TODO: I've replaced all the $wp_form with $wp_forms but I dont know that it'll actually work */
+
 class WP_Form_Validator {
 
   /**
@@ -43,6 +45,10 @@ class WP_Form_Validator {
   public function __construct($form_name) {
     global $wp_forms;
 
+    // if($form_name === 'edit_team') {
+      // echo json_encode('wp_form_validator register ' . $form_name);
+    // }
+
     if(!isset($wp_forms[$form_name])) {
       $this->reprint_form();
     }
@@ -55,7 +61,7 @@ class WP_Form_Validator {
       parse_str($_POST["data"], $this->data);
     } else {
       $this->is_ajax = false;
-      $this->data = ($this->method === 'GET') ? $_GET : $_POST;
+      $this->data = (strtoupper($this->form['method']) === 'GET') ? $_GET : $_POST;
     }
 
   }
@@ -97,6 +103,7 @@ class WP_Form_Validator {
    * @return boolean True if valid, false if some field has an error
    */
   public function valid() {
+    global $wp_forms;
 
     // We only need to run user-registered validations once, so we
     // tie this to the already_checked variable
@@ -119,7 +126,7 @@ class WP_Form_Validator {
 
     // Users can add their own errors after we've checked built-in errors,
     // so we need to double check $this->errors every time valid is called
-    if(empty($this->errors)) {
+    if(empty($wp_forms['errors'][$this->name])) {
       return true;
     } else {
       $this->reprint_form();
@@ -214,6 +221,34 @@ class WP_Form_Validator {
   }
 
   /**
+   * A minimum date for date fields.
+   *
+   * @param string   $name    Field name
+   * @param string   $message Custom error message if invalid
+   * @param string   $value   Minimum date value
+   *
+   * @return boolean          true if valid
+   */
+  protected function min_date($name, $message, $min) {
+    $value  = $this->get_value($name);
+    return (strtotime($value) > strtotime($min)) ? true : false;
+  }
+
+  /**
+   * A maximum date for date fields.
+   *
+   * @param string   $name    Field name
+   * @param string   $message Custom error message if invalid
+   * @param string   $value   Maximum date value
+   *
+   * @return boolean          true if valid
+   */
+  protected function max_date($name, $message, $max) {
+    $value  = $this->get_value($name);
+    return (strtotime($value) < strtotime($max)) ? true : false;
+  }
+
+  /**
    * Validation: has at least minimum length
    * @param  string   $name    Field name
    * @param  string   $message Custom error message if invalid
@@ -285,7 +320,7 @@ class WP_Form_Validator {
    * @return mixed        Depends which response was selected
    */
   public function respond($type, $args = '') {
-    global $wp_form;
+    global $wp_forms;
 
     switch ($type) {
       case 'redirect':
@@ -301,20 +336,19 @@ class WP_Form_Validator {
           echo json_encode(array('respond' => array('message' => $args)));
           exit;
         } else {
-          if(!$wp_form) {
-            $wp_form = array();
-            if(!$wp_form['respond_message']) {
-              $wp_form['respond_message'][$this->name] = array();
+          if(!$wp_forms) {
+            $wp_forms = array();
+            if(!$wp_forms['respond_message']) {
+              $wp_forms['respond_message'][$this->name] = array();
             }
           }
-          $wp_form['respond_message'][$this->name] = $args;
+          $wp_forms['respond_message'][$this->name] = $args;
         }
       case 'refresh':
+        // You don't need to refresh if it was posted via server...only via ajax
         if($this->is_ajax) {
           echo json_encode(array('respond' => array('refresh' => true)));
           exit;
-        } else {
-          die(wp_safe_redirect($_SERVER['REQUEST_URI']));
         }
     }
 
@@ -322,42 +356,44 @@ class WP_Form_Validator {
   }
 
   public function set_error($name, $message) {
-    $this->errors[$name] = $message;
+    global $wp_forms;
+    $wp_forms['errors'][$this->name][$name] = $message;
   }
 
   // TODO: so far there's no way to unset a message...
   public function set_message($message, $class = '') {
     $class = (is_array($class)) ? implode(" ", $class) : $class;
-    $this->messages[] = array($message, $class);
+    global $wp_forms;
+    $wp_forms['messages'][$this->name][$name] = array($message, $class);
   }
 
   public function reprint_form() {
-    global $wp_form;
+    global $wp_forms;
 
-    if(empty($this->errors)) {
+    if(empty($wp_forms['errors'][$this->name])) {
       return;
     }
 
     // If this is AJAX just echo them...
     if($this->is_ajax) {
-      echo json_encode( array('errors' => $this->errors, 'messages' => $this->messages ));
+      echo json_encode( array('errors' => $wp_forms['errors'][$this->name], 'messages' => $wp_forms['messages'][$this->name][$name] ));
       exit;
     }
 
-    if(!$wp_form) {
-      $wp_form = array();
+    if(!$wp_forms) {
+      $wp_forms = array();
 
-      if(!$wp_form['errors']) {
-        $wp_form['errors'] = array();
+      if(!$wp_forms['errors']) {
+        $wp_forms['errors'] = array();
       }
 
-      if(!$wp_form['messages']) {
-        $wp_form['messages'] = array();
+      if(!$wp_forms['messages']) {
+        $wp_forms['messages'] = array();
       }
     }
 
-    $wp_form['errors'][$this->name] = $this->errors;
-    $wp_form['messages'][$this->name] = $this->messages;
+    // $wp_forms['errors'][$this->name] = $this->errors;
+    $wp_forms['messages'][$this->name] = $this->messages;
 
     return;
   }

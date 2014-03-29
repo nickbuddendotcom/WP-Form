@@ -1,5 +1,10 @@
 jQuery(document).ready(function($) {
 
+  /**
+   * Submits AJAX-ified forms
+   *
+   * @return {mixed} Return handled in a 'respond' from WP_Form_Validator
+   */
   $('form[data-wp-form-ajax="1"]').submit(function(e) {
 
     e.preventDefault();
@@ -26,6 +31,8 @@ jQuery(document).ready(function($) {
       },
       function( response ) {
 
+        console.log('resp', response);
+
         resp = JSON.parse( response );
 
         if(resp.respond) {
@@ -34,7 +41,7 @@ jQuery(document).ready(function($) {
           } else if(resp.respond.redirect) {
             window.location = resp.respond.redirect;
           } else if(resp.respond.message) {
-            $message = $('<div />').addClass(resp.respond.message[1]).text(resp.respond.message[0]).hide();
+            $message = $('<div />').addClass(resp.respond.message[1]).html(resp.respond.message[0]).hide();
             $this.find("*").slideUp();
             $this.before( $message );
             $message.slideDown();
@@ -48,7 +55,7 @@ jQuery(document).ready(function($) {
 
         if(resp.messages) {
           $.each(resp.messages, function(i, message) {
-            $message = $('<div />').addClass(message[1]).text(message[0]).hide();
+            $message = $('<div />').addClass(message[1]).html(message[0]).hide();
             $this.before( $message );
             $message.slideDown();
           });
@@ -80,4 +87,26 @@ jQuery(document).ready(function($) {
     );
 
   });
+
+  /**
+   *  Initialize jQuery UI date widgetEnhanced Date
+   */
+  $('.wp-form-date').each(function(i, el) {
+    var $this       = $(this),
+        attrs       = {
+          dateFormat  : $this.data('date-format') || "yy-mm-dd",
+          minDate     : $this.attr('min') || null,
+          maxDate     : $this.attr('max') || null
+        };
+
+    $this.datepicker(attrs);
+  });
+
+  /**
+   * Initialize Selectize Enhanced Select
+   */
+  $('.wp-form-selectize').selectize({
+    create    : true
+  });
+
 });

@@ -2,5 +2,9 @@
 /* [ IMPORTS ] */
 /* --------------------------------------------------- */
 
-@import "compass/reset";
 @import "compass";
+@import "jquery-ui.datepicker";
+
+.wp-form-selectize .selectize-input {
+  margin-top: 5px;
+}
